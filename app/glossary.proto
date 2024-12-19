@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package dictionary;
+
+service GlossaryService {
+  rpc GetAllTerms (Empty) returns (TermsList);
+  rpc AddTerm (Term) returns (Term);
+  rpc GetTerm (TermNameRequest) returns (Term);
+  rpc UpdateTerm (Term) returns (Term);
+  rpc DeleteTerm (TermNameRequest) returns (MessageResponse);
+}
+
+message Empty {}
+
+message Term {
+  int32 id = 1;
+  string term = 2;
+  string definition = 3;
+}
+
+message TermsList {
+  repeated Term terms = 1;
+}
+
+message TermNameRequest {
+  string term = 1;
+}
+
+message MessageResponse {
+  string message = 1;
+}
