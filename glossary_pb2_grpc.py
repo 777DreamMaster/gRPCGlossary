@@ -2,7 +2,26 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-from app import glossary_pb2 as app_dot_glossary__pb2
+import glossary_pb2 as app_dot_glossary__pb2
+
+GRPC_GENERATED_VERSION = '1.68.1'
+GRPC_VERSION = grpc.__version__
+_version_not_supported = False
+
+try:
+    from grpc._utilities import first_version_is_lower
+    _version_not_supported = first_version_is_lower(GRPC_VERSION, GRPC_GENERATED_VERSION)
+except ImportError:
+    _version_not_supported = True
+
+if _version_not_supported:
+    raise RuntimeError(
+        f'The grpc package installed is at version {GRPC_VERSION},'
+        + f' but the generated code in app/glossary_pb2_grpc.py depends on'
+        + f' grpcio>={GRPC_GENERATED_VERSION}.'
+        + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
+        + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
+    )
 
 
 class GlossaryServiceStub(object):
@@ -18,27 +37,27 @@ class GlossaryServiceStub(object):
                 '/dictionary.GlossaryService/GetAllTerms',
                 request_serializer=app_dot_glossary__pb2.Empty.SerializeToString,
                 response_deserializer=app_dot_glossary__pb2.TermsList.FromString,
-                )
+                _registered_method=True)
         self.AddTerm = channel.unary_unary(
                 '/dictionary.GlossaryService/AddTerm',
                 request_serializer=app_dot_glossary__pb2.Term.SerializeToString,
-                response_deserializer=app_dot_glossary__pb2.Term.FromString,
-                )
+                response_deserializer=app_dot_glossary__pb2.MessageResponse.FromString,
+                _registered_method=True)
         self.GetTerm = channel.unary_unary(
                 '/dictionary.GlossaryService/GetTerm',
                 request_serializer=app_dot_glossary__pb2.TermNameRequest.SerializeToString,
                 response_deserializer=app_dot_glossary__pb2.Term.FromString,
-                )
+                _registered_method=True)
         self.UpdateTerm = channel.unary_unary(
                 '/dictionary.GlossaryService/UpdateTerm',
                 request_serializer=app_dot_glossary__pb2.Term.SerializeToString,
-                response_deserializer=app_dot_glossary__pb2.Term.FromString,
-                )
+                response_deserializer=app_dot_glossary__pb2.MessageResponse.FromString,
+                _registered_method=True)
         self.DeleteTerm = channel.unary_unary(
                 '/dictionary.GlossaryService/DeleteTerm',
                 request_serializer=app_dot_glossary__pb2.TermNameRequest.SerializeToString,
                 response_deserializer=app_dot_glossary__pb2.MessageResponse.FromString,
-                )
+                _registered_method=True)
 
 
 class GlossaryServiceServicer(object):
@@ -85,7 +104,7 @@ def add_GlossaryServiceServicer_to_server(servicer, server):
             'AddTerm': grpc.unary_unary_rpc_method_handler(
                     servicer.AddTerm,
                     request_deserializer=app_dot_glossary__pb2.Term.FromString,
-                    response_serializer=app_dot_glossary__pb2.Term.SerializeToString,
+                    response_serializer=app_dot_glossary__pb2.MessageResponse.SerializeToString,
             ),
             'GetTerm': grpc.unary_unary_rpc_method_handler(
                     servicer.GetTerm,
@@ -95,7 +114,7 @@ def add_GlossaryServiceServicer_to_server(servicer, server):
             'UpdateTerm': grpc.unary_unary_rpc_method_handler(
                     servicer.UpdateTerm,
                     request_deserializer=app_dot_glossary__pb2.Term.FromString,
-                    response_serializer=app_dot_glossary__pb2.Term.SerializeToString,
+                    response_serializer=app_dot_glossary__pb2.MessageResponse.SerializeToString,
             ),
             'DeleteTerm': grpc.unary_unary_rpc_method_handler(
                     servicer.DeleteTerm,
@@ -106,6 +125,7 @@ def add_GlossaryServiceServicer_to_server(servicer, server):
     generic_handler = grpc.method_handlers_generic_handler(
             'dictionary.GlossaryService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('dictionary.GlossaryService', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
@@ -123,11 +143,21 @@ class GlossaryService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/dictionary.GlossaryService/GetAllTerms',
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/dictionary.GlossaryService/GetAllTerms',
             app_dot_glossary__pb2.Empty.SerializeToString,
             app_dot_glossary__pb2.TermsList.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def AddTerm(request,
@@ -140,11 +170,21 @@ class GlossaryService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/dictionary.GlossaryService/AddTerm',
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/dictionary.GlossaryService/AddTerm',
             app_dot_glossary__pb2.Term.SerializeToString,
-            app_dot_glossary__pb2.Term.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            app_dot_glossary__pb2.MessageResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def GetTerm(request,
@@ -157,11 +197,21 @@ class GlossaryService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/dictionary.GlossaryService/GetTerm',
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/dictionary.GlossaryService/GetTerm',
             app_dot_glossary__pb2.TermNameRequest.SerializeToString,
             app_dot_glossary__pb2.Term.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def UpdateTerm(request,
@@ -174,11 +224,21 @@ class GlossaryService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/dictionary.GlossaryService/UpdateTerm',
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/dictionary.GlossaryService/UpdateTerm',
             app_dot_glossary__pb2.Term.SerializeToString,
-            app_dot_glossary__pb2.Term.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            app_dot_glossary__pb2.MessageResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def DeleteTerm(request,
@@ -191,8 +251,18 @@ class GlossaryService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/dictionary.GlossaryService/DeleteTerm',
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/dictionary.GlossaryService/DeleteTerm',
             app_dot_glossary__pb2.TermNameRequest.SerializeToString,
             app_dot_glossary__pb2.MessageResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)

@@ -4,9 +4,9 @@ package dictionary;
 
 service GlossaryService {
   rpc GetAllTerms (Empty) returns (TermsList);
-  rpc AddTerm (Term) returns (Term);
+  rpc AddTerm (Term) returns (MessageResponse);
   rpc GetTerm (TermNameRequest) returns (Term);
-  rpc UpdateTerm (Term) returns (Term);
+  rpc UpdateTerm (Term) returns (MessageResponse);
   rpc DeleteTerm (TermNameRequest) returns (MessageResponse);
 }
 
