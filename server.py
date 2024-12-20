@@ -37,32 +37,31 @@ class DictionaryService(glossary_pb2_grpc.GlossaryServiceServicer):
         db = SessionLocal()
         term = db.query(TermModel).filter(TermModel.term == request.term).first()
         db.close()
-        print(term)
         if term:
-            return glossary_pb2.Term(
-                term=glossary_pb2.Term(id=term.id, term=term.term, definition=term.definition)
-            )
+            return glossary_pb2.Term(id=term.id, term=term.term, definition=term.definition)
         context.set_code(grpc.StatusCode.NOT_FOUND)
         context.set_details("Термин не найден")
         return glossary_pb2.Term()
 
     def AddTerm(self, request, context):
+        print("here")
         db = SessionLocal()
         new_term = TermModel(
-            term=request.term.term,
-            definition=request.term.definition,
+            term=request.term,
+            definition=request.definition,
         )
         db.add(new_term)
         db.commit()
         db.close()
+        print(new_term)
         return glossary_pb2.MessageResponse(message="Термин добавлен")
 
     def UpdateTerm(self, request, context):
         db = SessionLocal()
-        term = db.query(TermModel).filter(TermModel.term == request.term.term).first()
+        term = db.query(TermModel).filter(TermModel.term == request.term).first()
         if term:
-            term.term = request.term.term
-            term.definition = request.term.definition
+            term.term = request.term
+            term.definition = request.definition
             db.commit()
             db.close()
             return glossary_pb2.MessageResponse(message="Термин обновлён")
@@ -81,7 +80,7 @@ class DictionaryService(glossary_pb2_grpc.GlossaryServiceServicer):
             return glossary_pb2.MessageResponse(message="Термин удалён")
         db.close()
         context.set_code(grpc.StatusCode.NOT_FOUND)
-        context.set_details("Term not found")
+        context.set_details("Термин не найден")
         return glossary_pb2.MessageResponse(message="Термин не найден")
 
 

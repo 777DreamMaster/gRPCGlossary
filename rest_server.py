@@ -25,34 +25,25 @@ async def get_terms():
 
 @app.get("/term/{term_name}", response_model=TermOut)
 async def get_term(term_name: str):
-    print(111111)
-    grpc_response = stub.GetTerm(glossary_pb2.TermNameRequest(term="API"))
-    print(222222)
-    if grpc_response.term:
-        term = grpc_response.term
-        print(333333)
-        return TermOut(term=TermOut(id=term.id, term=term.term, definition=term.definition))
-    raise HTTPException(status_code=404, detail="Term not found")
+    try:
+        grpc_response = stub.GetTerm(glossary_pb2.TermNameRequest(term=term_name))
+        if grpc_response:
+            print(grpc_response)
+            return TermOut(id=grpc_response.id, term=grpc_response.term, definition=grpc_response.definition)
+    except grpc.RpcError as rpc_error:
+        raise HTTPException(status_code=404, detail=rpc_error.details())
 
 
 @app.post("/terms", response_model=MessageResponse)
-async def add_term(term: TermCreate):
-    grpc_term = glossary_pb2.Term(
-        term=term.term,
-        definition=term.definition,
-    )
-    response = stub.AddTerm(glossary_pb2.Term(term=grpc_term))
+async def add_term(body: TermCreate):
+    response = stub.AddTerm(glossary_pb2.Term(term=body.term, definition=body.definition))
     return MessageResponse(message=response.message)
 
 
 @app.put("/terms", response_model=MessageResponse)
-async def update_term(term: TermCreate):
+async def update_term(body: TermCreate):
     try:
-        grpc_term = glossary_pb2.Term(
-            term=term.term.term,
-            definition=term.term.definition,
-        )
-        response = stub.UpdateTerm(glossary_pb2.Term(term=grpc_term))
+        response = stub.UpdateTerm(glossary_pb2.Term(term=body.term, definition=body.definition))
         return MessageResponse(message=response.message)
     except grpc.RpcError as e:
         raise HTTPException(status_code=404 if e.code() == grpc.StatusCode.NOT_FOUND else 500, detail=e.details())
